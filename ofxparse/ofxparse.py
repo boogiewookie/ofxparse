@@ -462,16 +462,16 @@ class OfxParser(object):
                 ofx_obj.status['message'] = \
                     message.contents[0].strip() if message else None
 
-        stmtrs_ofx = ofx.findAll('stmtrs')
+        stmtrs_ofx = ofx.find_all('stmtrs')
         if stmtrs_ofx:
             ofx_obj.accounts += cls.parseStmtrs(stmtrs_ofx, AccountType.Bank)
 
-        ccstmtrs_ofx = ofx.findAll('ccstmtrs')
+        ccstmtrs_ofx = ofx.find_all('ccstmtrs')
         if ccstmtrs_ofx:
             ofx_obj.accounts += cls.parseStmtrs(
                 ccstmtrs_ofx, AccountType.CreditCard)
 
-        invstmtrs_ofx = ofx.findAll('invstmtrs')
+        invstmtrs_ofx = ofx.find_all('invstmtrs')
         if invstmtrs_ofx:
             ofx_obj.accounts += cls.parseInvstmtrs(invstmtrs_ofx)
             seclist_ofx = ofx.find('seclist')
@@ -531,7 +531,7 @@ class OfxParser(object):
     @classmethod
     def parseAcctinfors(cls, acctinfors_ofx, ofx):
         all_accounts = []
-        for i in acctinfors_ofx.findAll('acctinfo'):
+        for i in acctinfors_ofx.find_all('acctinfo'):
             accounts = []
             if i.find('invacctinfo'):
                 accounts += cls.parseInvstmtrs([i])
@@ -590,7 +590,7 @@ class OfxParser(object):
     @classmethod
     def parseSeclist(cls, seclist_ofx):
         securityList = []
-        for secinfo_ofx in seclist_ofx.findAll('secinfo'):
+        for secinfo_ofx in seclist_ofx.find_all('secinfo'):
             uniqueid_tag = secinfo_ofx.find('uniqueid')
             name_tag = secinfo_ofx.find('secname')
             ticker_tag = secinfo_ofx.find('ticker')
@@ -729,7 +729,7 @@ class OfxParser(object):
         for transaction_type in ['posmf', 'posstock', 'posopt', 'posother',
                                  'posdebt']:
             try:
-                for investment_ofx in invstmtrs_ofx.findAll(transaction_type):
+                for investment_ofx in invstmtrs_ofx.find_all(transaction_type):
                     statement.positions.append(
                         cls.parseInvestmentPosition(investment_ofx))
             except (ValueError, IndexError, decimal.InvalidOperation,
@@ -744,7 +744,7 @@ class OfxParser(object):
 
         for transaction_type in InvestmentTransaction.AGGREGATE_TYPES:
             try:
-                for investment_ofx in invstmtrs_ofx.findAll(transaction_type):
+                for investment_ofx in invstmtrs_ofx.find_all(transaction_type):
                     statement.transactions.append(
                         cls.parseInvestmentTransaction(investment_ofx))
             except (ValueError, IndexError, decimal.InvalidOperation):
@@ -756,8 +756,8 @@ class OfxParser(object):
                      six.u('content'): investment_ofx}
                 )
 
-        for transaction_ofx in invstmtrs_ofx.findAll('invbanktran'):
-            for stmt_ofx in transaction_ofx.findAll('stmttrn'):
+        for transaction_ofx in invstmtrs_ofx.find_all('invbanktran'):
+            for stmt_ofx in transaction_ofx.find_all('stmttrn'):
                 try:
                     statement.transactions.append(
                         cls.parseTransaction(stmt_ofx))
@@ -787,7 +787,7 @@ class OfxParser(object):
             ballist_ofx = invbal_ofx.find('ballist')
             if ballist_ofx is not None:
                 statement.balance_list = []
-                for balance_ofx in ballist_ofx.findAll('bal'):
+                for balance_ofx in ballist_ofx.find_all('bal'):
                     brokerage_balance = BrokerageBalance()
                     name_ofx = balance_ofx.find('name')
                     if name_ofx is not None:
@@ -966,7 +966,7 @@ class OfxParser(object):
         cls.parseBalance(statement, stmt_ofx, 'availbal', 'available_balance',
                          'available_balance_date', 'ledger')
 
-        for transaction_ofx in stmt_ofx.findAll('stmttrn'):
+        for transaction_ofx in stmt_ofx.find_all('stmttrn'):
             try:
                 statement.transactions.append(
                     cls.parseTransaction(transaction_ofx))
